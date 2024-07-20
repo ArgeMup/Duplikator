@@ -1,0 +1,3 @@
+[submodule "lib/HazirKod_C/HazirKod_C"]
+	path = lib/HazirKod_C/HazirKod_C
+	url = https://github.com/ArgeMup/HazirKod_C.git
