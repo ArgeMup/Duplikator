@@ -53,14 +53,12 @@ void loop()
   #ifdef DEBUG
   if (za < millis())
   {
-    Gunluk("----- %d %ld %ld %ld %ld\r\n", Gorev_Wifi_Durum , esp_get_free_heap_size(), uxTaskGetStackHighWaterMark(NULL), ESP.getFreeHeap(), xPortGetFreeHeapSize());
+    Gunluk("----- %d %ld %ld %ld %ld\r\n", Gorev_Wifi_Durum() , esp_get_free_heap_size(), uxTaskGetStackHighWaterMark(NULL), ESP.getFreeHeap(), xPortGetFreeHeapSize());
     za = millis() + 5000;
   }
   #endif
 
-  Tip_u32 TavsiyeEdilenBeklemeMiktari = Gorev_Calistir(Gorev);
-  //Gunluk("Tip_u32 TavsiyeEdilenBeklemeMiktari = Gorev_Calistir(Gorev); -> %u", TavsiyeEdilenBeklemeMiktari);
-  if (TavsiyeEdilenBeklemeMiktari > 1000) TavsiyeEdilenBeklemeMiktari = 1000;
-  else TavsiyeEdilenBeklemeMiktari += 1;
-  delay(TavsiyeEdilenBeklemeMiktari);
+  Gorev_Wifi_Calistir();
+  Gorev_Calistir(Gorev);
+  delay(5);
 }

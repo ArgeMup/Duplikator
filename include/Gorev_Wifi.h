@@ -8,5 +8,6 @@ extern "C"
 
 Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar);
 uint8_t Gorev_Wifi_Durum();
+void Gorev_Wifi_Calistir();
 
 #endif
