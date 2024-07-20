@@ -154,7 +154,7 @@
 	//Depo.h
 	////////////////////////////////////////////////////////////////////////////////
 	#ifdef HazirKod_C_Kullan_Depo
-		#define _Depo_Sablon_KullaniciNesnesi	//KullaniciNesnesini kapatmak icin bu satiri kaldir
+		//#define _Depo_Sablon_KullaniciNesnesi	//KullaniciNesnesini kapatmak icin bu satiri kaldir
 	#endif
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +168,7 @@
 	////////////////////////////////////////////////////////////////////////////////
 	#ifdef HazirKod_C_Kullan_Gorev
 		typedef Tip_u8 							_Tip_Gorev_CalistirilacakAdim;
-		#define _Gorev_Sablon_KullaniciNesnesi	//KullaniciNesnesini kapatmak icin bu satiri kaldir
+		//#define _Gorev_Sablon_KullaniciNesnesi	//KullaniciNesnesini kapatmak icin bu satiri kaldir
 	#endif
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -179,7 +179,7 @@
 		#define _Gunluk_Renkli_Cikti_Uretsin
 		#define _Gunluk_Sablon_Satir_Numarasi					":" _Yazdirma_Sablon_TamSayi_i //Satir numarasini kapatmak icin bu satiri kaldir
 		
-		#define _Gunluk_Renk_DerleyiciHataGiderici				( e_Gunluk_Gorunum_ ) //error: invalid conversion from 'int' to 'e_Gunluk_Gorunum_'
+		#define _Gunluk_Renk_DerleyiciHataGiderici				( enum e_Gunluk_Gorunum_ ) //error: invalid conversion from 'int' to 'e_Gunluk_Gorunum_'
 		#define _Gunluk_Renk_BeklenmeyenDurum					( _Gunluk_Renk_DerleyiciHataGiderici( e_Gunluk_Gorunum_Yazi_Beyaz | e_Gunluk_Gorunum_Yuzey_Kirmizi ) )
 		#define _Gunluk_Renk_Hata								( _Gunluk_Renk_DerleyiciHataGiderici( e_Gunluk_Gorunum_Yazi_Kirmizi | e_Gunluk_Gorunum_Yuzey_Siyah ) )
 		#define _Gunluk_Renk_Uyari								( _Gunluk_Renk_DerleyiciHataGiderici( e_Gunluk_Gorunum_Yazi_Sari | e_Gunluk_Gorunum_Yuzey_Siyah ) )
