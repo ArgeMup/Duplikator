@@ -1,5 +1,10 @@
 #include <Arduino.h>
 #include "Gorev_Wifi.h"
+#include "HttpSunucu.h"
+#include "SntpIstemci.h"
+#include "Ortak.h"
+#include "esp_task_wdt.h"
+#include "Hafiza.h"
 
 #pragma region icKullanim
 extern "C"
@@ -13,11 +18,14 @@ extern "C"
 
   #include "Gorev.h"
   Tip_Isaretci_Gorev Gorev;
+
+  #include  "TcpSunucu.h"
 }
 
 Tip_void Gunluk_Disari_Aktarma_Islemi(Tip_Isaretci Tampon, Tip_u32 Adet)
 {
   Serial.write((const char *)Tampon, Adet);
+  TcpSunucu_Gonder(Tampon, Adet);
 }
 _Tip_Sure_Islem Zamanlama_An_Okuma_Islemi()
 {
@@ -25,8 +33,22 @@ _Tip_Sure_Islem Zamanlama_An_Okuma_Islemi()
 }
 #pragma endregion
 
+/*
+Ne kadar süre çalıştı nı yazdır
+butona 3sn basma kapalı ile kontrollü
+butona 1sn basma döndürme
+
++-2  50 ye ayarlı iken 45 ile 55 aralığında mı çalışsın
+ön ısıtma geçilebilmeli
+*/
+
 void setup() 
 {
+  esp_task_wdt_init(10, true);
+  esp_task_wdt_add(NULL);
+
+  Hafiza_Baslat();
+
   Serial.begin(921600);
   Gunluk_Baslat(Gunluk_Disari_Aktarma_Islemi);
   Zamanlama_Baslat(Zamanlama_An_Okuma_Islemi);
@@ -50,15 +72,15 @@ void setup()
 unsigned long za;
 void loop() 
 {
-  #ifdef DEBUG
+  esp_task_wdt_reset();
+
+  HttpSunucu_Calistir();
+  Gorev_Calistir(Gorev);
+  delay(AnaDonguDahaHizliCalissin_BitisAni > millis() ? 0 : 5);
+
   if (za < millis())
   {
-    Gunluk("----- %d %ld %ld %ld %ld\r\n", Gorev_Wifi_Durum() , esp_get_free_heap_size(), uxTaskGetStackHighWaterMark(NULL), ESP.getFreeHeap(), xPortGetFreeHeapSize());
+    Gunluk("----- %d %ld %ld %ld %ld %s", Gorev_Wifi_Durum() , esp_get_free_heap_size(), uxTaskGetStackHighWaterMark(NULL), ESP.getFreeHeap(), xPortGetFreeHeapSize(), SntpIstemci_Yazdir().c_str());
     za = millis() + 5000;
   }
-  #endif
-
-  Gorev_Wifi_Calistir();
-  Gorev_Calistir(Gorev);
-  delay(5);
 }

@@ -1,14 +1,12 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiAP.h>
-#include <WebServer.h>
 #include <ESPmDNS.h>
 
+#include "Ortak.h"
 #include "Gorev_Wifi.h"
-
-const char *ssid = "_test_";
-const char *password = "11233455667889";
-WebServer server(80);
+#include "SntpIstemci.h"
+#include "HttpSunucu.h"
 
 extern "C"
 {
@@ -18,28 +16,8 @@ extern "C"
   #define _Gunluk_Baslik "main"	//Gunluk ciktilarini tum dosyada kapatmak icin NULL olmali
   #include "Gunluk.h"					//Kaynak kod icinde tanimlanmali
   ////////////////////////////////////////////////////////////////////////////////
-}
 
-void handleRoot() 
-{
-  server.send(200, "text/plain", "hello from esp32!");
-}
-
-void handleNotFound() 
-{
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-  for (uint8_t i = 0; i < server.args(); i++) 
-  {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-  server.send(404, "text/plain", message);
+  #include "TcpSunucu.h"
 }
 
 Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
@@ -48,11 +26,12 @@ Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
   {
     default:
     case 0:
-      WiFi.begin(ssid, password);
-      MDNS.begin("Duplikator");
-      server.on("/", handleRoot);
-      server.onNotFound(handleNotFound);
-      server.begin();
+      SntpIstemci_Baslat();
+
+      WiFi.begin(Wifi_Istasyon_Ilk_Adi, Wifi_Istasyon_Ilk_Parolasi);
+      MDNS.begin(Uygulama_Adi);
+      HttpSunucu_Baslat();
+
       Detaylar->CalistirilacakAdim = 5;
       break;
   
@@ -60,29 +39,33 @@ Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     case 6:
       if (WiFi.isConnected())
       {
-        #ifdef DEBUG
-          if (Detaylar->CalistirilacakAdim == 5)
-          {
+        if (Detaylar->CalistirilacakAdim == 5)
+        {
+          #ifdef DEBUG
             char adres[32];
             WiFi.localIP().toString().toCharArray(adres, sizeof(adres));
             Gunluk("IP Adresi : %s", adres);
+          #endif
 
-            if (WiFi.getMode() == WIFI_MODE_APSTA) 
-            {
-              Gunluk("AP kapatildi %d", WiFi.mode(WIFI_MODE_STA));
-            }
-
-            Detaylar->CalistirilacakAdim++;
+          if (WiFi.getMode() == WIFI_MODE_APSTA) 
+          {
+            Gunluk("AP kapatildi %d", WiFi.mode(WIFI_MODE_STA));
           }
-        #endif     
+
+          Detaylar->CalistirilacakAdim++;
+        }
+
+        TcpSunucu_Calistir();
       }
       else Detaylar->CalistirilacakAdim = 100;
       break;
 
       case 100:
+        TcpSunucu_Durdur();
+
         if (WiFi.getMode() != WIFI_MODE_APSTA) 
         {
-          Gunluk("AP acildi %d", WiFi.softAP("Duplikator", "123456789"));
+          Gunluk("AP acildi %d", WiFi.softAP(Wifi_ErisimNoktasi_Adi, Wifi_ErisimNoktasi_Parolasi));
         }
 
         WiFi.disconnect();
@@ -100,8 +83,4 @@ Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
 uint8_t Gorev_Wifi_Durum()
 {
   return (uint8_t)WiFi.status();
-}
-void Gorev_Wifi_Calistir()
-{
-  server.handleClient();
 }
