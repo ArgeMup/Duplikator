@@ -188,7 +188,7 @@
 		#define _Gunluk_Hex_BirSatirdakiBilgiSayisi				( 16 )
 		#define _Gunluk_Tampon_Kapasitesi_Sabit					( 256 ) //Sabit miktarda stack dan temin edilen alan icin bu satiri ac
 		#ifndef _Gunluk_Tampon_Kapasitesi_Sabit
-			#define _Gunluk_Tampon_Azami_Kapasitesi				( 512 ) //Degisken miktarda heap den temin edilen alan icin usttekini kapat
+			#define _Gunluk_Tampon_Azami_Kapasitesi				( 2048 ) //Degisken miktarda heap den temin edilen alan icin usttekini kapat
 		#endif
 	
 		//Tip_void Gunluk_Disari_Aktarma_Islemi(Tip_Isaretci Tampon, Tip_u32 Adet)

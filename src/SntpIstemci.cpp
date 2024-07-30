@@ -1,13 +1,9 @@
 #include <Arduino.h>
 #include "time.h"
 #include "sntp.h"
+#include "Ortak.h"
 
 #include "SntpIstemci.h"
-
-const char * Gunler[] =
-{
-    "Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşeembe", "Cuma", "Cumartesi"
-};
 
 bool SntpIstemci_Yazdir(char* Tampon, uint32_t Adet)
 {

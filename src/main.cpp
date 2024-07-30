@@ -47,11 +47,10 @@ void setup()
   esp_task_wdt_init(10, true);
   esp_task_wdt_add(NULL);
 
-  Hafiza_Baslat();
-
   Serial.begin(921600);
   Gunluk_Baslat(Gunluk_Disari_Aktarma_Islemi);
   Zamanlama_Baslat(Zamanlama_An_Okuma_Islemi);
+  Hafiza_Baslat();
 
   Gorev =  Gorev_Yeni();
 	if (Gorev == NULL) 

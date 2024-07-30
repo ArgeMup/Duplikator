@@ -7,6 +7,7 @@
 #include "Gorev_Wifi.h"
 #include "SntpIstemci.h"
 #include "HttpSunucu.h"
+#include "Hafiza.h"
 
 extern "C"
 {
@@ -28,7 +29,7 @@ Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     case 0:
       SntpIstemci_Baslat();
 
-      WiFi.begin(Wifi_Istasyon_Ilk_Adi, Wifi_Istasyon_Ilk_Parolasi);
+      WiFi.begin(Ayarlar.Wifi.ErisimNoktasi, Ayarlar.Wifi.Parola);
       MDNS.begin(Uygulama_Adi);
       HttpSunucu_Baslat();
 

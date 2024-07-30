@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #define Ayarlar_Program_Sayisi  ( 15 )
-enum Durum_ { Kapali, Kontrollü, Programli };
 
 void Hafiza_Baslat();
 bool Hafiza_Kaydet();
@@ -12,7 +11,6 @@ struct Ayarlar_
 {
     struct Ayarlar_Program_
     {
-        enum Durum_ Durum;
         uint8_t SeciliProgramNo;
 
         struct Ayarlar_Program_Biri_
@@ -31,7 +29,7 @@ struct Ayarlar_
                 uint8_t Karistirma_Sicakligi;
                 uint8_t Karistirma_CalismaSuresi_Dk, Karistirma_DurmaSuresi_Dk;
             } OnIsitma, Kullanim;
-        } Tümü[Ayarlar_Program_Sayisi];
+        } Tumu[Ayarlar_Program_Sayisi];
     } Program;
 
     struct Ayarlar_Wifi_
