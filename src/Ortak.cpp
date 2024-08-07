@@ -1,7 +1,6 @@
 #include "Ortak.h"
 
 const char *Uygulama_Adi = "Duplikator";
-const char *Wifi_ErisimNoktasi_Adi = "Duplikator";
 const char *Wifi_ErisimNoktasi_Parolasi = "19051881";
 unsigned long AnaDonguDahaHizliCalissin_BitisAni = 0; 
 
@@ -9,8 +8,6 @@ const char * Gunler[] =
 {
     "Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"
 };
-
-struct Cihaz_ Cihaz;
 
 #pragma region Html_SayiGirisi
 const char Html_SayiGirisi[] = R"rawliteral(

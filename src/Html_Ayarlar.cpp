@@ -165,6 +165,7 @@ const char Html_Ayarlar[] = R"rawliteral(
             <button onclick="showPage('programs')">Programlar</button>
             <button onclick="showPage('wifi')">Wifi</button>
             <button onclick="showPage('devices')">Cihaz</button>
+            <a href="/" class="button" style="font-weight: bold;">Çıkış</a>
         </div>
         <div id="programs" class="page active">
             <h2>Programlar</h2> 
@@ -248,7 +249,7 @@ const char Html_Ayarlar[] = R"rawliteral(
             </div>
             <br>
             <div class="button-container">
-                <button onclick="GonderAl('/WifiAyarlari', '2adi=' + document.getElementById('2adi').value + '&2parola=' + document.getElementById('2parola').value)">Kaydet</button>
+                <button onclick="GonderAl('/Ayarlar_Wifi_Kaydet', '2adi=' + document.getElementById('2adi').value + '&2parola=' + document.getElementById('2parola').value)">Kaydet</button>
             </div>
         </div>
         <div id="devices" class="page">
@@ -260,7 +261,7 @@ const char Html_Ayarlar[] = R"rawliteral(
                     ??? 3 Kalibrasyon ???
                     <br>
                     <div class="button-container">
-                        <button onclick="GonderAl('/Kalibrasyon', '3KazanSicakligi=' + document.getElementById('3KazanSicakligi').value + '&3KazanHassasiyeti=' + document.getElementById('3KazanHassasiyeti').value)">Kaydet</button>
+                        <button onclick="GonderAl('/Ayarlar_Kalibrasyon_Kaydet', '3KazanSicakligi=' + document.getElementById('3KazanSicakligi').value + '&3KazanHassasiyeti=' + document.getElementById('3KazanHassasiyeti').value)">Kaydet</button>
                     </div>
                 </div>
             </div>
@@ -269,7 +270,7 @@ const char Html_Ayarlar[] = R"rawliteral(
                 <p>Yazılım : ??? 3 Surum ???</p>
                 <p>Dahili Saat : ??? 3 Saat ???</p>
                 <br>
-                <form id="file-upload-form" action="/YazilimGuncelle" method="post" enctype="multipart/form-data">
+                <form id="file-upload-form" action="/Ayarlar_YazilimGuncelle" method="post" enctype="multipart/form-data">
                     <div class="file-upload">
                         <input type="file" id="dfu-file" name="dfu-file" onchange="displayFileName()">
                         <label for="dfu-file">Yazılım Dosyasını Seç</label>
@@ -311,28 +312,43 @@ const char Html_Ayarlar[] = R"rawliteral(
             document.getElementById('file-name-hidden').value = fileName; // Gizli alana dosya adını ekler
         }
 
-        function GonderAl(Sayfa, Icerik) {
-            fetch(Sayfa, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: Icerik
-            })
-            .then(response => {
-                if (response.ok) {
-                    var toast = document.getElementById("toast");
-                    toast.innerHTML = "Başarılı";
-                    toast.className = "show";
-                    setTimeout(function() {
-                        toast.className = toast.className.replace("show", "");
-                    }, 3000);
-                }
-                else {
-                    alert('Beklenmeyen bir durum oluştu A: ' + response.body);
-                }
-            })
-            .catch(error => {
-                alert('Beklenmeyen bir durum oluştu B: ' + error.message);
-            });
+        function GonderAl(Sayfa, Icerik, retries = 3, delay = 1000) {
+            function tryFetch(attempt, errorMessages = []) {
+                fetch(Sayfa, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: Icerik
+                })
+                .then(response => {
+                    if (response.status === 200) {
+                        var toast = document.getElementById("toast");
+                        toast.innerHTML = "Başarılı";
+                        toast.className = "show";
+                        setTimeout(function() {
+                            toast.className = toast.className.replace("show", "");
+                        }, 3000);
+                    } else {
+                        response.text().then(function (text) {
+                            errorMessages.push(text);
+                            if (attempt < retries) {
+                                setTimeout(() => tryFetch(attempt + 1, errorMessages), delay);
+                            } else {
+                                throw new Error(text);
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    errorMessages.push(error.message);
+                    if (attempt < retries) {
+                        setTimeout(() => tryFetch(attempt + 1, errorMessages), delay);
+                    } else {
+                        alert('Beklenmeyen bir durum oluştu B:\n' + errorMessages.join('\n'));
+                    }
+                });
+            }
+
+            tryFetch(1);
         }
     
         function FormGonder_Programlar(event) {

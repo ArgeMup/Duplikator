@@ -1,5 +1,8 @@
 #include <Arduino.h>
 #include "Gorev_Wifi.h"
+#include "Gorev_Cihaz.h"
+#include "Gorev_Olcumler.h"
+#include "Gorev_Led.h"
 #include "HttpSunucu.h"
 #include "SntpIstemci.h"
 #include "Ortak.h"
@@ -33,18 +36,9 @@ _Tip_Sure_Islem Zamanlama_An_Okuma_Islemi()
 }
 #pragma endregion
 
-/*
-Ne kadar süre çalıştı nı yazdır
-butona 3sn basma kapalı ile kontrollü
-butona 1sn basma döndürme
-
-+-2  50 ye ayarlı iken 45 ile 55 aralığında mı çalışsın
-ön ısıtma geçilebilmeli
-*/
-
 void setup() 
 {
-  esp_task_wdt_init(10, true);
+  esp_task_wdt_init(15, true);
   esp_task_wdt_add(NULL);
 
   Serial.begin(921600);
@@ -62,6 +56,24 @@ void setup()
   if (!Gorev_Islem_Ekle(Gorev, Gorev_WIFI_Islem)) 
   {
     Gunluk_BeklenmeyenDurum("Gorev_Islem_Ekle(Gorev, WIFI_Gorev_Islem, NULL)");
+    ESP.restart();
+  }
+
+  if (!Gorev_Islem_Ekle(Gorev, Gorev_Cihaz_Islem)) 
+  {
+    Gunluk_BeklenmeyenDurum("Gorev_Islem_Ekle(Gorev, Gorev_Cihaz_Islem, NULL)");
+    ESP.restart();
+  }
+
+  if (!Gorev_Islem_Ekle(Gorev, Gorev_Olcumler_Islem)) 
+  {
+    Gunluk_BeklenmeyenDurum("Gorev_Islem_Ekle(Gorev, Gorev_Olcumler_Islem, NULL)");
+    ESP.restart();
+  }
+
+  if (!Gorev_Islem_Ekle(Gorev, Gorev_Led_Islem)) 
+  {
+    Gunluk_BeklenmeyenDurum("Gorev_Islem_Ekle(Gorev, Gorev_Led_Islem, NULL)");
     ESP.restart();
   }
 

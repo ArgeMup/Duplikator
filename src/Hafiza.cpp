@@ -1,7 +1,7 @@
 #include "Hafiza.h"
+#include "Gorev_Cihaz.h"
 #include "Ortak.h"
 #include <Preferences.h>
-#include "crypto.h"
 
 extern "C"
 {
@@ -70,12 +70,11 @@ void Hafiza_Baslat()
 
   Cikis:
   FizikiAlan.end();
-  memset(&Cihaz, 0, sizeof(Cihaz));
 }
 
 bool Hafiza_Kaydet()
 {
-  Cihaz.Durum = Durum_Kapali;
+  Cihaz_Durum_0Programli_1Kapali_2Kontrollu(1);
 
   Ayarlar.DogrulukKontrolu = 0;
   Ayarlar.DogrulukKontrolu = DogrulukKontrolu((uint8_t *)&Ayarlar, sizeof(Ayarlar));
@@ -85,9 +84,22 @@ bool Hafiza_Kaydet()
 
   bool sonuc = false;
 
-  if (FizikiAlan.putBytes("ayrlr", &Ayarlar, sizeof(Ayarlar)) == sizeof(Ayarlar)) sonuc = true;
-  else Gunluk_Hata("Yazilamadi");
+  if (FizikiAlan.putBytes("ayrlr", &Ayarlar, sizeof(Ayarlar)) != sizeof(Ayarlar)) 
+  {
+    Gunluk_Hata("Yazilamadi");
+    goto Cikis;
+  }
 
+  Ayarlar_ Ayarlar2;  
+  if (FizikiAlan.getBytes("ayrlr", &Ayarlar2, sizeof(Ayarlar2)) != sizeof(Ayarlar)) 
+  {
+    Gunluk_Hata("Geri Okunamadi");
+    goto Cikis;
+  }
+
+  if (memcmp(&Ayarlar, &Ayarlar2, sizeof(Ayarlar)) == 0) sonuc = true;
+
+  Cikis:
   FizikiAlan.end();
   return sonuc;
 }

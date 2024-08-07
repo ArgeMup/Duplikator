@@ -7,6 +7,19 @@
 void Hafiza_Baslat();
 bool Hafiza_Kaydet();
 
+struct Ayarlar_Program_Biri_Gun_
+{
+    bool Etkin;
+    uint8_t Baslama_Saati, Baslama_Dakika;
+    uint8_t CalismaSuresi_Saat;
+};
+struct Ayarlar_Program_Biri_IsitmaProfili_
+{
+    uint8_t Isitici_Sicakligi;
+    uint8_t Karistirma_Sicakligi;
+    uint8_t Karistirma_CalismaSuresi_Dk, Karistirma_DurmaSuresi_Dk;
+};
+
 struct Ayarlar_
 {
     struct Ayarlar_Program_
@@ -16,19 +29,8 @@ struct Ayarlar_
         struct Ayarlar_Program_Biri_
         {
             char Adi[32];
-            struct Ayarlar_Program_Biri_Gun_
-            {
-                bool Etkin;
-                uint8_t Baslama_Saati, Baslama_Dakika;
-                uint8_t CalismaSuresi_Saat;
-            } Gunler[7];
-
-            struct Ayarlar_Program_Biri_IsitmaProfili_
-            {
-                uint8_t Isitici_Sicakligi;
-                uint8_t Karistirma_Sicakligi;
-                uint8_t Karistirma_CalismaSuresi_Dk, Karistirma_DurmaSuresi_Dk;
-            } OnIsitma, Kullanim;
+            struct Ayarlar_Program_Biri_Gun_ Gunler[7];
+            struct Ayarlar_Program_Biri_IsitmaProfili_ OnIsitma, Kullanim;
         } Tumu[Ayarlar_Program_Sayisi];
     } Program;
 

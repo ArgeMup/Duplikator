@@ -1,3 +1,6 @@
 [submodule "lib/HazirKod_C/HazirKod_C"]
 	path = lib/HazirKod_C/HazirKod_C
 	url = https://github.com/ArgeMup/HazirKod_C.git
+[submodule "lib/Adafruit_NeoPixel"]
+	path = lib/Adafruit_NeoPixel
+	url = https://github.com/adafruit/Adafruit_NeoPixel.git

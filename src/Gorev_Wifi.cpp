@@ -28,7 +28,7 @@ Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     default:
     case 0:
       SntpIstemci_Baslat();
-
+      WiFi.setHostname(Uygulama_Adi);
       WiFi.begin(Ayarlar.Wifi.ErisimNoktasi, Ayarlar.Wifi.Parola);
       MDNS.begin(Uygulama_Adi);
       HttpSunucu_Baslat();
@@ -66,7 +66,7 @@ Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
 
         if (WiFi.getMode() != WIFI_MODE_APSTA) 
         {
-          Gunluk("AP acildi %d", WiFi.softAP(Wifi_ErisimNoktasi_Adi, Wifi_ErisimNoktasi_Parolasi));
+          Gunluk("AP acildi %d", WiFi.softAP(Uygulama_Adi, Wifi_ErisimNoktasi_Parolasi));
         }
 
         WiFi.disconnect();
@@ -84,4 +84,9 @@ Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
 uint8_t Gorev_Wifi_Durum()
 {
   return (uint8_t)WiFi.status();
+}
+
+uint8_t Gorev_Wifi_InternetVarMi()
+{
+  return WiFi.status() == WL_CONNECTED;
 }

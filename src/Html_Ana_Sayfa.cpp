@@ -5,7 +5,7 @@ const char Html_Ana_Sayfa[] = R"rawliteral(
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="5">
+    <meta http-equiv="refresh" content="15">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>??? Uygulama ???</title>
     <style>
@@ -43,6 +43,7 @@ const char Html_Ana_Sayfa[] = R"rawliteral(
 
         .region {
             flex: 1;
+            height: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -165,15 +166,14 @@ const char Html_Ana_Sayfa[] = R"rawliteral(
         <div class="region">Programlı</div>
         <div class="kaydirici" id="kaydirici">Kontrollü</div>
     </div>
-    <br>??? Aciklama Asama ???<br><br>
+    <br>??? Aciklama ???<br><br>
     <table class="info-table">
         <tr>
             <th>Seçili Program</th>
             <th>
-                <select>
-                    <!--??? Programlar ve isimleri  
-                        <option value="1" selected>1 : Program 1</option>
-                    ???--> 
+                <select onchange="GonderAl('/AnaSayfa_Program_Sec', 'Secim=' + this.value)">
+                    <!-- <option value="1" selected>1 : Program 1</option> --> 
+                    ??? Programlar ???
                 </select>
             </th>
         </tr>
@@ -196,23 +196,25 @@ const char Html_Ana_Sayfa[] = R"rawliteral(
         </tr>
         <tr>
             <td>Kazan Sıcaklığı</td>
-            <td>??? Kazan ??? °C</td>
-        </tr>
-        <tr>
-            <td>Çevre Sıcaklığı</td>
-            <td>??? Cevre ??? °C</td>
-        </tr>
-        <tr>
-            <td>İşlemci Sıcaklığı</td>
-            <td>??? Islemci ??? °C</td>
+            <td>??? Kazan ???</td>
         </tr>
         <tr>
             <td>Akım Tüketimi</td>
-            <td>??? Akim ??? A</td>
+            <td>??? Akim ???</td>
+        </tr>
+        <tr>
+            <td>Çevre</td>
+            <td>??? Cevre ???</td>
         </tr>
     </table>
-    <br>
+
     <div class="button-container">
+        <div id="OnIsitma" style="display:??? OnIsitmayiAtla ???">
+            <br>
+            <button style="background-color: rgb(237, 113, 52);color: black; padding: 5px;font-weight: bold;" onclick="OnIsitmayiAtla()">Ön Isıtmayı Atla</a>
+            <br>
+        </div>
+        <br>
         <a href="/Ayarlar" class="button">Ayarlar</a>
     </div>
 
@@ -227,63 +229,86 @@ const char Html_Ana_Sayfa[] = R"rawliteral(
  
                 let value;
                 if (clickX < containerWidth / 3) {
-                    value = 1;
-                } else if (clickX < 2 * containerWidth / 3) {
                     value = 2;
+                } else if (clickX < 2 * containerWidth / 3) {
+                    value = 1;
                 } else {
-                    value = 3;
+                    value = 0;
                 }
 
-                updateKaydiriciPosition(value);
-                //Durum değişikliğini buradan gönder
+                updateKaydiriciPosition(value, true);
             });
 
-            function updateKaydiriciPosition(value) {
+            function updateKaydiriciPosition(value, Gonder) {
                 switch (value) {
                     case 1:
-                        kaydirici.style.left = '0';
-                        kaydirici.style.backgroundColor = '#0000FF';
-                        kaydirici.textContent = 'Kontrollü';
-                        break;
-                    case 2:
                         kaydirici.style.left = '133px';
                         kaydirici.style.backgroundColor = '#f44336';
                         kaydirici.textContent = 'Kapalı';
                         break;
-                    case 3:
+                    case 0:
                         kaydirici.style.left = '267px';
-                        kaydirici.style.backgroundColor = '#4caf50';
+                        kaydirici.style.backgroundColor = '#00a000';
                         kaydirici.textContent = 'Programlı';
                         break;
+                    case 2:
+                        kaydirici.style.left = '0';
+                        kaydirici.style.backgroundColor = '#005000';
+                        kaydirici.textContent = 'Kontrollü';
+                        break;
                 }
+
+                if (Gonder) GonderAl("/AnaSayfa_Durum_Sec", "Secim=" + value);
             }
 
-            // İlk pozisyonu ayarlama
-            updateKaydiriciPosition(0/*??? Ilk Acilacak Sayfa No ???*/);
+            updateKaydiriciPosition(0/*??? Durum ???*/, false);
         });
 
-        function GonderAl(Sayfa, Icerik) {
-            fetch(Sayfa, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: Icerik
-            })
-            .then(response => {
-                if (response.ok) {
-                    var toast = document.getElementById("toast");
-                    toast.innerHTML = "Başarılı";
-                    toast.className = "show";
-                    setTimeout(function() {
-                        toast.className = toast.className.replace("show", "");
-                    }, 3000);
-                }
-                else {
-                    alert('Beklenmeyen bir durum oluştu: ' + response.body);
-                }
-            })
-            .catch(error => {
-                alert('Beklenmeyen bir durum oluştu: ' + error.message);
-            });
+        function OnIsitmayiAtla()
+        {
+            GonderAl("/AnaSayfa_OnIsitmayiAtla", "");
+
+            var OnIsitma = document.getElementById("OnIsitma");
+            OnIsitma.style.display = "none";
+        }
+
+        function GonderAl(Sayfa, Icerik, retries = 3, delay = 1000) {
+            function tryFetch(attempt, errorMessages = []) {
+                fetch(Sayfa, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: Icerik
+                })
+                .then(response => {
+                    if (response.status === 200) {
+                        var toast = document.getElementById("toast");
+                        toast.innerHTML = "Başarılı";
+                        toast.className = "show";
+                        setTimeout(function() {
+                            toast.className = toast.className.replace("show", "");
+                        }, 3000);
+                    } else {
+                        response.text().then(function (text) {
+                            errorMessages.push(text);
+                            if (attempt < retries) {
+                                setTimeout(() => tryFetch(attempt + 1, errorMessages), delay);
+                            } else {
+                                throw new Error(text);
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    errorMessages.push(error.message);
+                    if (attempt < retries) {
+                        setTimeout(() => tryFetch(attempt + 1, errorMessages), delay);
+                    } else {
+                        alert('Beklenmeyen bir durum oluştu B:\n' + errorMessages.join('\n'));
+                    }
+                });
+            }
+
+            tryFetch(1);
         }
     </script>
 </body>
