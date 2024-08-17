@@ -109,7 +109,6 @@ void Gonder_AnaSayfa()
     sayfa.replace("??? Isitici 1 ???", Cihaz_CikisAcikMi(Bacak_Isitici1) ? "🟢" : "🔴");
     sayfa.replace("??? Isitici 2 ???", Cihaz_CikisAcikMi(Bacak_Isitici2) ? "🟢" : "🔴");
     sayfa.replace("??? Kazan ???", YI_Yazdir(dizi, sizeof(dizi), _Yazdirma_Sablon_NoktaliSayi " °C", Olcumler.KazanSicakligi));
-    sayfa.replace("??? Akim ???", YI_Yazdir(dizi, sizeof(dizi), _Yazdirma_Sablon_NoktaliSayi " A", Olcumler.AkimTuketimi_A));
     sayfa.replace("??? Cevre ???", YI_Yazdir(dizi, sizeof(dizi), _Yazdirma_Sablon_NoktaliSayi " °C, " _Yazdirma_Sablon_NoktaliSayi "V", Olcumler.CevreSicakligi, Olcumler._3v3));
 
     server.sendHeader("Cache-Control", "no-cache");
@@ -207,6 +206,10 @@ void Gonder_Ayarlar_Secim(int SeciliProgram)
     sayfa.replace("??? 2 Adi ???", Ayarlar.Wifi.ErisimNoktasi);
     
     //Cihaz
+    char gecici_tampon[128];
+    sayfa.replace("??? 3 Saat ???", SntpIstemci_Yazdir());
+    sayfa.replace("??? 3 Frekans ???", String(YI_Yazdir(gecici_tampon, sizeof(gecici_tampon), "%d MHz", ESP.getCpuFreqMHz())));
+    
     const int MS_IN_SECOND = 1000;
 	const int MS_IN_MINUTE = MS_IN_SECOND * 60;
 	const int MS_IN_HOUR = MS_IN_MINUTE * 60;
@@ -220,11 +223,10 @@ void Gonder_Ayarlar_Secim(int SeciliProgram)
 	msn %= MS_IN_MINUTE;
 	int saniye = msn / MS_IN_SECOND;
 	msn %= MS_IN_SECOND;
-
-    char bin_dsy_adi[128];
-    sprintf(bin_dsy_adi, "%s_%d_%d", Uygulama_Adi, Surum_Yuksek, Surum_Dusuk);
-    sayfa.replace("??? 3 Surum ???", String(bin_dsy_adi) + " " + String(Ayarlar.Cihaz.SonYazilimYuklemeZamani));
-    sayfa.replace("??? 3 Saat ???", SntpIstemci_Yazdir() + String(YI_Yazdir(bin_dsy_adi, sizeof(bin_dsy_adi), ", Çalışma süresi : %02d.%02d:%02d:%02d", gun, saat, dakika, saniye)));
+    sayfa.replace("??? 3 Calisma ???", YI_Yazdir(gecici_tampon, sizeof(gecici_tampon), "%02d.%02d:%02d:%02d", gun, saat, dakika, saniye));
+    
+    sprintf(gecici_tampon, "%s_%d_%d", Uygulama_Adi, Surum_Yuksek, Surum_Dusuk);
+    sayfa.replace("??? 3 Surum ???", String(gecici_tampon) + " " + String(Ayarlar.Cihaz.SonYazilimYuklemeZamani));
     sayfa.replace("??? 3 Kalibrasyon ???", 
         SayiGirisi("3KazanSicakligi", "Kazan sıcaklığını düzelt (30 °C -> " + String(30 + Ayarlar.Cihaz.KazanIsiOlcer.Duzelt) + " °C)", String(Ayarlar.Cihaz.KazanIsiOlcer.Duzelt), "-15", "15") + 
         SayiGirisi("3KazanHassasiyeti", "Kazan sıcaklığı hata payı (" + String(50 - Ayarlar.Cihaz.KazanIsiOlcer.Hassasiyet) + " °C - " + String(50 + Ayarlar.Cihaz.KazanIsiOlcer.Hassasiyet) + " °C)", String(Ayarlar.Cihaz.KazanIsiOlcer.Hassasiyet), "1", "15"));
@@ -371,6 +373,43 @@ void Gonder_Kalibrasyon()
     server.sendHeader("Connection", "close");
     server.send(200, "text/plain", "BASARILI");
 }
+void Gonder_HataAyiklama()
+{
+    Led_Calistir(Led_Durum_Http_Istegi);
+    Gunluk("HataAyiklama");
+
+    int BaglantiNoktasi, Durum;
+    if (!SayiOku("_A", &BaglantiNoktasi) || !SayiOku("_B", &Durum) || BaglantiNoktasi < 0 || BaglantiNoktasi > 4)
+    {
+        String msj = "Parametreler uygun değil";
+        Gunluk_Hata("%s", msj.c_str());
+        server.send(400, "text/plain", msj);
+        return;
+    }
+
+    switch (BaglantiNoktasi)
+    {
+    case 1: //Karistirici
+        digitalWrite(Bacak_Karistirici, Durum == 0 ? LOW : HIGH);
+        break;
+    
+    case 2: //Sogutucu
+        digitalWrite(Bacak_Sogutucu, Durum == 0 ? LOW : HIGH);
+        break;
+
+    case 3: //Isitici 1
+        digitalWrite(Bacak_Isitici1, Durum == 0 ? LOW : HIGH);
+        break;
+
+    case 4: //Isitici 2
+        digitalWrite(Bacak_Isitici2, Durum == 0 ? LOW : HIGH);
+        break;
+    }
+
+    server.sendHeader("Cache-Control", "no-cache");
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/plain", "BASARILI");
+}
 void Gonder_YazilimGuncelleme_Once()
 {
     Led_Calistir(Led_Durum_Http_Istegi);
@@ -413,7 +452,7 @@ void Gonder_YazilimGuncelleme_Once()
 
         if (Update.end(true)) 
         { //true to set the size to the current progress
-            Gunluk_Bilgi("Guncelleme Basarili: %u", upload.totalSize);
+            Gunluk_Bilgi("Guncelleme Basarili: %u %d", upload.totalSize, Update.isFinished());
         } 
         else 
         {
@@ -454,6 +493,10 @@ void HttpSunucu_Baslat()
     server.on("/Ayarlar_Wifi_Kaydet", HTTP_POST, Gonder_WifiAyarlari);
     server.on("/Ayarlar_Kalibrasyon_Kaydet", HTTP_POST, Gonder_Kalibrasyon);
     server.on("/Ayarlar_YazilimGuncelle", HTTP_POST, Gonder_YazilimGuncelleme_Sonra, Gonder_YazilimGuncelleme_Once);
+
+    #ifdef DEBUG
+        server.on("/HataAyiklama", HTTP_GET, Gonder_HataAyiklama);
+    #endif
 
     server.onNotFound(Gonder_SayfaBulunamadi);
     server.begin();

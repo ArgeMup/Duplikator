@@ -30,6 +30,7 @@ Tip_i32 Gorev_WIFI_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
       SntpIstemci_Baslat();
       WiFi.setHostname(Uygulama_Adi);
       WiFi.begin(Ayarlar.Wifi.ErisimNoktasi, Ayarlar.Wifi.Parola);
+      WiFi.setSleep(WIFI_PS_MIN_MODEM);
       MDNS.begin(Uygulama_Adi);
       HttpSunucu_Baslat();
 

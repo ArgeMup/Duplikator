@@ -3,6 +3,7 @@
 #include "Gorev_Cihaz.h"
 #include "Gorev_Led.h"
 #include "Hafiza.h"
+#include "Ortak.h"
 
 extern "C"
 {
@@ -12,7 +13,7 @@ extern "C"
   ////////////////////////////////////////////////////////////////////////////////
 }
 
-struct Olcumler_ Olcumler = { -1, -1, -1, -1 };
+struct Olcumler_ Olcumler = { -1, -1, -1 };
 
 #define _Ortalama_Sayisi ( 100 )
 uint32_t Olcumler_toplam;
@@ -22,7 +23,7 @@ uint16_t Olcumler_buton_sayac = 0;
 float NTC_SicaklikHesapla(float Direnc)
 {
   #define NTC_ReferansNoktasi_Sicaklik          ( 25.0f )
-  #define NTC_ReferansNoktasi_Direnc            ( 10000.0f ) 
+  #define NTC_ReferansNoktasi_Direnc            ( 4700.0f ) 
   #define NTC_Beta                              ( 3950.0f ) 
   #define NTC_ReferansNoktasi_Sicaklik_Kelvin   ( NTC_ReferansNoktasi_Sicaklik + 273.15f )
 
@@ -57,14 +58,14 @@ int32_t Gorev_Olcumler_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
   {
   case 0:
     analogSetClockDiv(255);
-    analogReadResolution(12);
+    analogReadResolution(12); //0 mV ~ 2500 mV
+    analogSetAttenuation(ADC_11db);
     pinMode(Bacak_Buton, INPUT_PULLUP);
 
     Detaylar->CalistirilacakAdim++;
     break;
   
   case 1:
-    analogSetAttenuation(ADC_11db); //0 mV ~ 2500 mV
     Olcumler_mv_sayac = 0;
     Olcumler_toplam = 0;
     adcAttachPin(Bacak_3v3);
@@ -76,7 +77,7 @@ int32_t Gorev_Olcumler_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     {
       DirencDegeri = (float)Olcumler_toplam / (float)_Ortalama_Sayisi;
       if (DirencDegeri < 100 || DirencDegeri > 2400) Olcumler._3v3 = -1;
-      else Olcumler._3v3 = DirencDegeri * 2.0f /*Esit direnclerle bolundu*/;
+      else Olcumler._3v3 = DirencDegeri * 2.0f /*Esit direnclerle bolundu*/ /1000.0f/*V olarak*/;
       Detaylar->CalistirilacakAdim++;
     }
     break;
@@ -92,10 +93,10 @@ int32_t Gorev_Olcumler_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     if (++ Olcumler_mv_sayac == _Ortalama_Sayisi)
     {
       DirencDegeri = (float)Olcumler_toplam / (float)_Ortalama_Sayisi;
-      if (DirencDegeri < 100 || DirencDegeri > 2400) Olcumler.KazanSicakligi = -1;
+      if (DirencDegeri < 100 || DirencDegeri > 2400) Olcumler.KazanSicakligi = -1111;
       else
       {
-        DirencDegeri = DirencDegeriniHesapla(2200, DirencDegeri);
+        DirencDegeri = DirencDegeriniHesapla(2350, DirencDegeri);
         Olcumler.KazanSicakligi = PTC_SicaklikHesapla(DirencDegeri) + (float)Ayarlar.Cihaz.KazanIsiOlcer.Duzelt;
       }
       Detaylar->CalistirilacakAdim++;
@@ -113,30 +114,12 @@ int32_t Gorev_Olcumler_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     if (++ Olcumler_mv_sayac == _Ortalama_Sayisi)
     {
       DirencDegeri = (float)Olcumler_toplam / (float)_Ortalama_Sayisi;
-      if (DirencDegeri < 100 || DirencDegeri > 2400) Olcumler.CevreSicakligi = -1;
+      if (DirencDegeri < 20 || DirencDegeri > 2450) Olcumler.CevreSicakligi = -1111;
       else
       {
-        DirencDegeri = DirencDegeriniHesapla(330, DirencDegeri);
+        DirencDegeri = DirencDegeriniHesapla(10220, DirencDegeri);
         Olcumler.CevreSicakligi = NTC_SicaklikHesapla(DirencDegeri);
       }
-      Detaylar->CalistirilacakAdim++;
-    }
-    break;  
-
-  case 7:
-    analogSetAttenuation(ADC_0db); //0 mV ~ 750 mV
-    Olcumler_mv_sayac = 0;
-    Olcumler_toplam = 0;
-    adcAttachPin(Bacak_AkimTuketimi);
-    Detaylar->CalistirilacakAdim++;
-    break;
-  case 8:
-    Olcumler_toplam += analogReadMilliVolts(Bacak_AkimTuketimi);
-    if (++ Olcumler_mv_sayac == _Ortalama_Sayisi)
-    {
-      //110 r akım trafosu ile paralel
-      DirencDegeri = (float)Olcumler_toplam / (float)_Ortalama_Sayisi; //uzerindeki gerilim
-      Olcumler.AkimTuketimi_A = DirencDegeri / 110.0f * 1000;
       Detaylar->CalistirilacakAdim = 1;
     }
     break;
@@ -153,7 +136,7 @@ int32_t Gorev_Olcumler_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     {
       //buton arızasını raporla
       Led_Calistir(Led_Durum_Hatali);
-      Cihaz_Aciklama("Buton basılmış gibi görünüyor, sadece arayüzden kontrol edilebilir");
+      Cihaz_Aciklama("Buton arızalı (sürekli basılı) görünüyor, sadece arayüzden kontrol edilebilir");
     }
     else if (Olcumler_buton_sayac == 2000/*10sn*/)
     {
@@ -174,7 +157,7 @@ int32_t Gorev_Olcumler_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
   }
   else 
   {
-    //if (Olcumler_buton_sayac > 0) Gunluk("%d", Olcumler_buton_sayac);
+    if (Olcumler_buton_sayac > 0) Gunluk("%d", Olcumler_buton_sayac);
     Olcumler_buton_sayac = 0;
     Led_Durdur(Led_Durum_Butona_Basildi); //basılmadıgı icin zorla kapat
   }

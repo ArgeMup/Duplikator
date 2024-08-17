@@ -1,6 +1,7 @@
 #include "Gorev_Led.h"
 #include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
+#include "Ortak.h"
 
 extern "C"
 {
@@ -10,7 +11,7 @@ extern "C"
   ////////////////////////////////////////////////////////////////////////////////
 }
 
-Adafruit_NeoPixel pixels(1, 27/*Bacak_Led*/, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels(1, Bacak_Led, NEO_GRB + NEO_KHZ800);
 uint32_t  Sayac_Genel;
 uint16_t LedlerinDurumu = Led_Durum_KMYB;
 bool GuncellemeVar = false;
@@ -52,7 +53,11 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
   if (GuncellemeVar)
   {
     GuncellemeVar = false;
-    Detaylar->CalistirilacakAdim = 1;
+
+    if (Bit_Oku(LedlerinDurumu, Led_Durum_Butona_Basildi) && 
+        Detaylar->CalistirilacakAdim >= 20 &&
+        Detaylar->CalistirilacakAdim <= 24) { /*bos gec*/ }
+    else Detaylar->CalistirilacakAdim = 1;
   }
 
   switch (Detaylar->CalistirilacakAdim)
@@ -124,11 +129,12 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     gecikme = 41;
     if (Sabitlendi) 
     {
-      Sayac_Genel = 200;
+      Sayac_Genel = 500;
       Detaylar->CalistirilacakAdim++;
     }
     break;
   case 24:
+    gecikme = 10;
     if (--Sayac_Genel == 0)
     {
       Detaylar->CalistirilacakAdim = 1;

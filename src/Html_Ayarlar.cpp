@@ -255,6 +255,9 @@ const char Html_Ayarlar[] = R"rawliteral(
         <div id="devices" class="page">
             <h2>Cihaz</h2>
             <p>Cihaz ayarlarını buradan yapabilirsiniz.</p>
+            <p>Dahili Saat : ??? 3 Saat ???</p>
+            <p>Çalışma Süresi : ??? 3 Calisma ???</p>
+            <p>Frekans : ??? 3 Frekans ???</p>
             <div class="preheating-settings form-container">
                 <h3>Kalibrasyon</h3>
                 <div>
@@ -268,11 +271,10 @@ const char Html_Ayarlar[] = R"rawliteral(
             <div class="preheating-settings">
                 <h3>Yazılım Güncelleme</h3>
                 <p>Yazılım : ??? 3 Surum ???</p>
-                <p>Dahili Saat : ??? 3 Saat ???</p>
                 <br>
                 <form id="file-upload-form" action="/Ayarlar_YazilimGuncelle" method="post" enctype="multipart/form-data">
                     <div class="file-upload">
-                        <input type="file" id="dfu-file" name="dfu-file" onchange="displayFileName()">
+                        <input type="file" id="dfu-file" name="dfu-file" onchange="displayFileName()" accept=".bin">
                         <label for="dfu-file">Yazılım Dosyasını Seç</label>
                         <p id="file-name">Seçilen dosya yok</p>
                     </div>

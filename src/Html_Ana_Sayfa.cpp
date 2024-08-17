@@ -199,10 +199,6 @@ const char Html_Ana_Sayfa[] = R"rawliteral(
             <td>??? Kazan ???</td>
         </tr>
         <tr>
-            <td>Akım Tüketimi</td>
-            <td>??? Akim ???</td>
-        </tr>
-        <tr>
             <td>Çevre</td>
             <td>??? Cevre ???</td>
         </tr>

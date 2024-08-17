@@ -45,6 +45,7 @@ void setup()
   Gunluk_Baslat(Gunluk_Disari_Aktarma_Islemi);
   Zamanlama_Baslat(Zamanlama_An_Okuma_Islemi);
   Hafiza_Baslat();
+  pinMode(Bacak_Led_Yesil, OUTPUT);
 
   Gorev =  Gorev_Yeni();
 	if (Gorev == NULL) 
@@ -81,6 +82,7 @@ void setup()
 }
 
 unsigned long za;
+bool Yesil_led = false;
 void loop() 
 {
   esp_task_wdt_reset();
@@ -91,7 +93,10 @@ void loop()
 
   if (za < millis())
   {
-    Gunluk("----- %d %ld %ld %ld %ld %s", Gorev_Wifi_Durum() , esp_get_free_heap_size(), uxTaskGetStackHighWaterMark(NULL), ESP.getFreeHeap(), xPortGetFreeHeapSize(), SntpIstemci_Yazdir().c_str());
+    Gunluk("----- %d %ld %ld %ld %ld %s", Gorev_Wifi_Durum(), esp_get_free_heap_size(), uxTaskGetStackHighWaterMark(NULL), ESP.getFreeHeap(), xPortGetFreeHeapSize(), SntpIstemci_Yazdir().c_str());
     za = millis() + 5000;
+
+    Yesil_led = !Yesil_led;
+    digitalWrite(Bacak_Led_Yesil, Yesil_led);
   }
 }

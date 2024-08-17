@@ -5,6 +5,7 @@
 #include "Gorev_Wifi.h"
 #include "Gorev_Olcumler.h"
 #include "Gorev_Led.h"
+#include "Ortak.h"
 
 extern "C"
 {
@@ -16,7 +17,7 @@ extern "C"
   #include "YaziIslemleri.h"
 }
 
-enum Durum_ {           Durum_IlkAcilis,    Durum_IlkAcilis_Test,       Durum_IlkAcilis_Test_SonAsama,
+enum Durum_ {           Durum_IlkAcilis,    Durum_IlkAcilis_Test,
                         Durum_Programli,    Durum_Programli_Calisiyor,
                         Durum_Kontrollu,    Durum_Kontrollu_Calisiyor,
                         Durum_Kapali,       Durum_Kapali_Beklemede };
@@ -59,21 +60,24 @@ void Cihaz_Durum_0Programli_1Kapali_2Kontrollu(uint8_t YeniDurum)
     default:
     case 0:
       Durum = Durum_Programli;
+      Gunluk("Yeni durum : Programli");
       break;
   
     case 1:
       Durum = Durum_Kapali;
+      Gunluk("Yeni durum : Kapali");
       break;
 
     case 2:
       Durum = Durum_Kontrollu;
+      Gunluk("Yeni durum : Kontrollu");
       break;
   }
 }
 
 bool Cihaz_IlkAcilis_AsamasindaMi()
 {
-  return Durum <= Durum_IlkAcilis_Test_SonAsama;
+  return Durum <= Durum_IlkAcilis_Test;
 }
 bool Cihaz_OnIsitma_AsamasindaMi()
 {
@@ -83,7 +87,7 @@ void Cihaz_OnIsitma_Atla()
 {
   if (Cihaz_OnIsitma_AsamasindaMi()) Asama = Asama_Kullanim;
 }
-bool Cihaz_CikisAcikMi(Cikislar Bacak)
+bool Cihaz_CikisAcikMi(uint8_t Bacak)
 {
   return digitalRead(Bacak);
 }
@@ -104,17 +108,26 @@ Tip_i32 Gorev_Cihaz_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
       Durum = Durum_IlkAcilis_Test;
       Aciklama.clear();
       Gorev_Islem_CikVeTekrarCalistir(15000);
-      break;
 
     case Durum_IlkAcilis_Test:
       Led_Durdur(Led_Durum_KMYB);
-      Durum = Durum_Programli;
-      Aciklama.clear();
+
+      if (Olcumler.KazanSicakligi < 0 || Olcumler._3v3 < 0)
+      {
+        Aciklama = "Ölçüm alan donanımlardan en az birisi hatalı (-1). Durum düzelene kadar sistem beklemede kalacak !";
+        Led_Calistir(Led_Durum_Hatali);
+      }
+      else
+      {
+        Led_Durdur(Led_Durum_Hatali);
+        Durum = Durum_Programli;
+        Aciklama.clear();
+      }
       break;
 
     case Durum_Kapali:
-      Led_Calistir(Led_Durum_Kapali);
       Led_Durdur(Led_Durum_Hatali);
+      Led_Calistir(Led_Durum_Kapali);
       Aciklama.clear();
       digitalWrite(Bacak_Karistirici, false);
       digitalWrite(Bacak_Sogutucu, false);
@@ -198,7 +211,7 @@ Tip_i32 Gorev_Cihaz_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
       //Alta gecerek devam edecek
         
     case Durum_Kontrollu_Calisiyor:
-      if (Olcumler.KazanSicakligi < 0 || Olcumler.CevreSicakligi < 0 || Olcumler.AkimTuketimi_A < 0 || Olcumler._3v3 < 0)
+      if (Olcumler.KazanSicakligi < 0 || Olcumler._3v3 < 0)
       {
         digitalWrite(Bacak_Karistirici, false);
         digitalWrite(Bacak_Sogutucu, false);
@@ -345,5 +358,5 @@ Tip_i32 Gorev_Cihaz_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
       break;
   }
 
-  Gorev_Islem_CikVeTekrarCalistir(3500);
+  Gorev_Islem_CikVeTekrarCalistir(500);
 }
