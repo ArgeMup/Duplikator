@@ -237,6 +237,7 @@ const char Html_Ayarlar[] = R"rawliteral(
         <div id="wifi" class="page">
             <h2>Wifi</h2>
             <p>Wifi ayarlarını buradan yapabilirsiniz.</p>
+            <p>Yerel bağlantı adresi : ??? 2 Adresi ???</p>
             <div class="form-container">
                 <div>
                     <label for="2adi">Erişim Noktası</label>

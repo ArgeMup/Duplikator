@@ -55,7 +55,11 @@ uint16_t SntpIstemci_SaatDakika()
 void SaatOkundu(struct timeval *tv)
 {
   struct tm timeinfo;
-  if (getLocalTime(&timeinfo)) SaatOkunduAni = millis();
+  bool snc = getLocalTime(&timeinfo);
+  
+  if (snc) SaatOkunduAni = millis();
+
+  Gunluk("Saat guncelleme sonucu : %d", snc);
 }
 void SntpIstemci_Baslat()
 {

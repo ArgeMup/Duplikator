@@ -197,7 +197,7 @@ Tip_i32 Gorev_Cihaz_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
       if (!SntpIstemci_SaatDogruMu()) 
       {
         Durum = Durum_IlkAcilis; //hata var
-        Gunluk("!SntpIstemci_SaatDogruMu()");
+        Gunluk_Hata("!SntpIstemci_SaatDogruMu()");
       }
       else
       {

@@ -203,6 +203,7 @@ void Gonder_Ayarlar_Secim(int SeciliProgram)
     sayfa.replace("??? 1 Kullanim ???", TabloIcerigi);
 
     //Wifi
+    sayfa.replace("??? 2 Adresi ???", WiFi.localIP().toString());
     sayfa.replace("??? 2 Adi ???", Ayarlar.Wifi.ErisimNoktasi);
     
     //Cihaz

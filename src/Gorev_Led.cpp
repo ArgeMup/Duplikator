@@ -34,8 +34,9 @@ void Led_Durdur(Led_Durum_ Durum)
   GuncellemeVar = true;
 }
 
-#define _y  ( 0xF0 ) //240
-#define _d  ( 0x40 ) //64
+#define _y_Uyari  ( 0xF0 ) //F0 240
+#define _y_Normal ( 0xA0 ) //daha soguk calismasi icin A0 160
+#define _d        ( 0x40 ) //64
 union  
 {
   uint32_t _32;
@@ -43,7 +44,7 @@ union
   {         
     uint8_t Mavi, Yesil, Kirmizi, _;
   } _8;
-} _Renk_GUncel = { 0 }, Renk_Hedef = { pixels.Color(_y, _y, _y) };
+} _Renk_GUncel = { 0 }, Renk_Hedef = { pixels.Color(_y_Uyari, _y_Uyari, _y_Uyari) };
 #define _Sabitlendi ( _Renk_GUncel._32 == Renk_Hedef._32 )
 
 int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
@@ -87,7 +88,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
   case 11:
     if (Sabitlendi) 
     {
-      Renk_Hedef._32 = pixels.Color(_y, _y, _y); //beyaz
+      Renk_Hedef._32 = pixels.Color(_y_Uyari, _y_Uyari, _y_Uyari); //beyaz
       Detaylar->CalistirilacakAdim++;
     }
     break;
@@ -113,7 +114,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
   case 21: 
     if (Sabitlendi) 
     {
-      Renk_Hedef._32 = pixels.Color(_y, _y, _y); //beyaz
+      Renk_Hedef._32 = pixels.Color(_y_Uyari, _y_Uyari, _y_Uyari); //beyaz
       Detaylar->CalistirilacakAdim++;
     }
     break;
@@ -143,7 +144,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     break;  
 
   case 30: //Led_Durum_Hatali
-    Renk_Hedef._32 = pixels.Color(_y, 0, 0); //çok kirmizi
+    Renk_Hedef._32 = pixels.Color(_y_Uyari, 0, 0); //çok kirmizi
     Detaylar->CalistirilacakAdim++;
     break;
   case 31:
@@ -158,7 +159,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     break;   
 
   case 40: //Led_Durum_KMYB
-    Renk_Hedef._32 = pixels.Color(_y, 0, 0);
+    Renk_Hedef._32 = pixels.Color(_y_Uyari, 0, 0);
     Detaylar->CalistirilacakAdim++;
     break;
   case 41:
@@ -173,7 +174,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     gecikme = 20;
     if (Sabitlendi) 
     {
-      Renk_Hedef._32 = pixels.Color(0, _y, 0);
+      Renk_Hedef._32 = pixels.Color(0, _y_Uyari, 0);
       Detaylar->CalistirilacakAdim++;
     }
     break;
@@ -189,7 +190,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     gecikme = 20;
     if (Sabitlendi) 
     {
-      Renk_Hedef._32 = pixels.Color(0, 0, _y);
+      Renk_Hedef._32 = pixels.Color(0, 0, _y_Uyari);
       Detaylar->CalistirilacakAdim++;
     }
     break;
@@ -205,7 +206,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     gecikme = 20;
     if (Sabitlendi) 
     {
-      Renk_Hedef._32 = pixels.Color(_y, _y, _y);
+      Renk_Hedef._32 = pixels.Color(_y_Uyari, _y_Uyari, _y_Uyari);
       Detaylar->CalistirilacakAdim++;
     }
     break;
@@ -237,7 +238,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     if (--Sayac_Genel == 0) Detaylar->CalistirilacakAdim++;
     break;   
   case 53:
-    Renk_Hedef._32 = pixels.Color(0, 0, _y); //mavi
+    Renk_Hedef._32 = pixels.Color(0, 0, _y_Normal); //mavi
     Detaylar->CalistirilacakAdim++;
     break;
   case 54:
@@ -245,7 +246,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     break;
 
   case 60: //Led_Durum_Calisiyor_Bekliyor
-    Renk_Hedef._32 = pixels.Color(0, 0, _y); //mavi
+    Renk_Hedef._32 = pixels.Color(0, 0, _y_Normal); //mavi
     Detaylar->CalistirilacakAdim++;
     break;
   case 61:
@@ -267,7 +268,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     break;
 
   case 70: //Led_Durum_Calisiyor_OnIsitma
-    Renk_Hedef._32 = pixels.Color(_y, _y, 0); //sarı
+    Renk_Hedef._32 = pixels.Color(_y_Normal, _y_Normal, 0); //sarı
     Detaylar->CalistirilacakAdim++;
     break;
   case 71:
@@ -289,7 +290,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
     break;
 
   case 80: //Led_Durum_Calisiyor
-    Renk_Hedef._32 = pixels.Color(0, _y, 0); //yeşil
+    Renk_Hedef._32 = pixels.Color(0, _y_Normal, 0); //yeşil
     Detaylar->CalistirilacakAdim++;
     break;
   case 81:
@@ -317,7 +318,7 @@ int32_t Gorev_Led_Islem(Tip_Isaretci_Gorev_Detaylar Detaylar)
   case 91:
     if (Sabitlendi) 
     {
-      Renk_Hedef._32 = pixels.Color(0, _y, 0); // yeşil
+      Renk_Hedef._32 = pixels.Color(0, _y_Normal, 0); // yeşil
       Detaylar->CalistirilacakAdim++;
     }
     break;

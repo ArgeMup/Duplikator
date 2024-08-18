@@ -20,13 +20,13 @@ void TcpSunucu_Baslat()
 
     Soket_Sunucu = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (Soket_Sunucu < 0) {
-        Gunluk("Unable to create socket: errno %d", errno);
+        Gunluk_Hata("Soket olusturulamadi: %d", errno);
         return;
     }
 
     int opt = 1;
     setsockopt(Soket_Sunucu, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    Gunluk("Socket created");
+    Gunluk("Soket olusturuldu");
 
     struct sockaddr_storage dest_addr;
     struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in *)&dest_addr;
@@ -35,23 +35,23 @@ void TcpSunucu_Baslat()
     dest_addr_ip4->sin_port = htons(ErisimNoktasi);
     int err = bind(Soket_Sunucu, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
     if (err != 0) {
-        Gunluk("Socket unable to bind: errno %d", errno);
+        Gunluk_Hata("Soket dinleyici acilamadi: %d", errno);
         Gunluk("IPPROTO: %d", AF_INET);
         TcpSunucu_Durdur();
         return;
     }
-    Gunluk("Socket bound, port %d", ErisimNoktasi);
+    Gunluk("Soket erisim noktasi: %d", ErisimNoktasi);
 
     err = listen(Soket_Sunucu, 1);
     if (err != 0) {
-        Gunluk("Error occurred during listen: errno %d", errno);
+        Gunluk_Hata("Sunucu acilirken hata oldu: %d", errno);
         TcpSunucu_Durdur();
         return;
     }
 
     int flags = fcntl(Soket_Sunucu, F_GETFL); 
     if (fcntl(Soket_Sunucu, F_SETFL, flags | O_NONBLOCK) == -1) { 
-        Gunluk("Unable to set socket non blocking %d", errno);
+        Gunluk_Hata("Sunucu bekletmeyen soket olarak ayarlanamadi: %d", errno);
         TcpSunucu_Durdur();
     }
 }
@@ -70,7 +70,7 @@ void TcpSunucu_Calistir()
         Soket_Istemci = accept(Soket_Sunucu, (struct sockaddr *)&source_addr, &addr_len);
         if (Soket_Istemci < 0) {
             // errno == 11 bekleyen istemci yok
-            if (errno != 11) Gunluk("Unable to accept connection: errno %d", errno);
+            if (errno != 11) Gunluk_Hata("Yeni baglanti beklerken hata: %d", errno);
             return;
         }
 
@@ -93,7 +93,7 @@ void TcpSunucu_Calistir()
         if (source_addr.ss_family == PF_INET) {
             inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);
         }
-        Gunluk("Socket accepted ip address: %s", addr_str);
+        Gunluk("Soket baglandi, adresi: %s", addr_str);
     } 
 }
 
@@ -112,7 +112,7 @@ void TcpSunucu_Gonder(void* Tampon, uint32_t Adet)
             close(Soket_Istemci);
             Soket_Istemci = -1;
 
-            Gunluk("Error occurred during sending: errno %d", errno);
+            Gunluk_Hata("Gonderme hatasi: %d", errno);
             return;
         }
 

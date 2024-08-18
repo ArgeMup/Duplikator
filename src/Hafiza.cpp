@@ -44,26 +44,31 @@ void Hafiza_Baslat()
   Doko_hesaplanan = DogrulukKontrolu((uint8_t *)&Ayarlar, sizeof(Ayarlar));
   if (Doko_alinan != Doko_hesaplanan)
   {
-    Gunluk_Hata("Doko gecemedi");
+    Gunluk_BeklenmeyenDurum("Doko gecemedi");
     goto YenidenBaslat;
   }
   goto Cikis;
 
   YenidenBaslat:
-  Gunluk_BeklenmeyenDurum("Yeniden Baslatildi");
+  Gunluk_Bilgi("Yeniden Baslatildi");
   memset(&Ayarlar, 0, sizeof(Ayarlar));
   strcpy(Ayarlar.Program.Tumu[0].Adi, "Ornek Program");
-  Ayarlar.Program.Tumu[0].Gunler[1].Etkin = true; //pzt
-  Ayarlar.Program.Tumu[0].Gunler[1].Baslama_Saati = 9;
-  Ayarlar.Program.Tumu[0].Gunler[1].CalismaSuresi_Saat = 2;
-  Ayarlar.Program.Tumu[0].OnIsitma.Isitici_Sicakligi = 90;
-  Ayarlar.Program.Tumu[0].OnIsitma.Karistirma_Sicakligi = 50;
-  Ayarlar.Program.Tumu[0].OnIsitma.Karistirma_CalismaSuresi_Dk = 1;
-  Ayarlar.Program.Tumu[0].OnIsitma.Karistirma_DurmaSuresi_Dk = 2;
-  Ayarlar.Program.Tumu[0].Kullanim.Isitici_Sicakligi = 60;
-  Ayarlar.Program.Tumu[0].Kullanim.Karistirma_Sicakligi = 50;
-  Ayarlar.Program.Tumu[0].Kullanim.Karistirma_CalismaSuresi_Dk = 2;
-  Ayarlar.Program.Tumu[0].Kullanim.Karistirma_DurmaSuresi_Dk = 2;
+  for (int i = 0; i < Ayarlar_Program_Sayisi; i++)
+  {
+    for (int iii = 0; iii < 7; iii++)
+    {
+      Ayarlar.Program.Tumu[i].Gunler[iii].Baslama_Saati = 9;
+      Ayarlar.Program.Tumu[i].Gunler[iii].CalismaSuresi_Saat = 3;
+    }
+    Ayarlar.Program.Tumu[i].OnIsitma.Isitici_Sicakligi = 90;
+    Ayarlar.Program.Tumu[i].OnIsitma.Karistirma_Sicakligi = 50;
+    Ayarlar.Program.Tumu[i].OnIsitma.Karistirma_CalismaSuresi_Dk = 1;
+    Ayarlar.Program.Tumu[i].OnIsitma.Karistirma_DurmaSuresi_Dk = 2;
+    Ayarlar.Program.Tumu[i].Kullanim.Isitici_Sicakligi = 60;
+    Ayarlar.Program.Tumu[i].Kullanim.Karistirma_Sicakligi = 50;
+    Ayarlar.Program.Tumu[i].Kullanim.Karistirma_CalismaSuresi_Dk = 2;
+    Ayarlar.Program.Tumu[i].Kullanim.Karistirma_DurmaSuresi_Dk = 2;
+  }
   strcpy(Ayarlar.Wifi.ErisimNoktasi, "_test_");
   strcpy(Ayarlar.Wifi.Parola, "11233455667889");
   Ayarlar.Cihaz.KazanIsiOlcer.Hassasiyet = 2;
